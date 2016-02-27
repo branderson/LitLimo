@@ -18,7 +18,11 @@ public class PlayerController : MonoBehaviour
     private float friction = 2f;
 
     // Properties
-    private float drunkLevel = 0f;          // Score multiplier and self control inhibitor
+    private float drunkLevel = 100f;          // Score multiplier and self control inhibitor
+    private int score = 0;
+
+    private int framesPerDrunkLevel = 30;
+    private int framesSinceSoberUp = 0;
 
 	// Use this for initialization
 	void Start ()
@@ -32,11 +36,12 @@ public class PlayerController : MonoBehaviour
     {
         velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y);
         HandleInput();
-	}
+    }
 
     void FixedUpdate()
     {
         UpdatePosition();
+	    UpdateIntoxication();
     }
 
     void UpdatePosition()
@@ -66,6 +71,20 @@ public class PlayerController : MonoBehaviour
         Turn(-Input.GetAxis("Turn"));
     }
 
+    void UpdateIntoxication()
+    {
+        Debug.Log("Drunk level: " + drunkLevel);
+        if (drunkLevel > 0)
+        {
+            if (framesSinceSoberUp >= framesPerDrunkLevel)
+            {
+                framesSinceSoberUp = 0;
+                drunkLevel -= 1;
+            }
+            framesSinceSoberUp += 1;
+        }
+    }
+
     void Accelerate(float accel)
     {
         if (accel > 0)
@@ -90,8 +109,18 @@ public class PlayerController : MonoBehaviour
         turnValue = turnRadius*accel;
     }
 
-    void HitPedestrian(PedestrianController ped)
+    public void HitPedestrian(PedestrianController ped)
     {
-        
+        score += 1 + (int)drunkLevel/4;
+        Debug.Log("Score: " + score);
+    }
+
+    public void DestroyLiquorStore(LiquorStoreController liq)
+    {
+        drunkLevel += 25;
+        if (drunkLevel > 100)
+        {
+            drunkLevel = 100;
+        }
     }
 }
