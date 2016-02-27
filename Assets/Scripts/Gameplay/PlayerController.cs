@@ -4,7 +4,6 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
     // Components
-    private Transform transform;
     private Rigidbody2D rigidbody;
 
     // Motion
@@ -12,10 +11,11 @@ public class PlayerController : MonoBehaviour
     private float acceleration = 0f;        // Acceleration of the car
     private float turnValue = 0f;           // Turn acceleration
     private float direction = 0f;           // Direction in radians
-    private float maxAcceleration = 100f;   // Engine acceleration limit
-    private float reverseAcceleration = 50f; // Acceleration while reversing
-    private float turnRadius = .5f;         // Speed of turning
+    [SerializeField] private float maxAcceleration = 50f;   // Engine acceleration limit
+    private float reverseAcceleration; // Acceleration while reversing
+    [SerializeField] private float turnRadius = .5f;         // Speed of turning
     private float sidewaysDrag = .25f;
+    private float friction = 2f;
 
     // Properties
     private float drunkLevel = 0f;          // Score multiplier and self control inhibitor
@@ -23,8 +23,8 @@ public class PlayerController : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-	    this.transform = GetComponent<Transform>();
 	    this.rigidbody = GetComponent<Rigidbody2D>();
+	    reverseAcceleration = maxAcceleration/1.5f;
 	}
 	
 	// Update is called once per frame
@@ -41,6 +41,16 @@ public class PlayerController : MonoBehaviour
 
     void UpdatePosition()
     {
+        float tempVel = velocity.magnitude;
+
+        if (velocity.magnitude > 0)
+        {
+            rigidbody.AddForce(transform.up * -friction);
+        }
+        if (tempVel < velocity.magnitude)
+        {
+            rigidbody.velocity = new Vector2(0, 0);
+        }
         rigidbody.AddForce(transform.up * acceleration);
         transform.Rotate((velocity.magnitude / 5f) * Vector3.forward * turnValue);
 
@@ -70,7 +80,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                acceleration = maxAcceleration*accel;
+                acceleration = 1.5f * maxAcceleration * accel;
             }
         }
     }
