@@ -8,11 +8,14 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rigidbody;
 
     // Motion
-//    private float velocity = 0f;            // Forward velocity
+    private Vector2 velocity;            // Forward velocity
     private float acceleration = 0f;        // Acceleration of the car
+    private float turnValue = 0f;           // Turn acceleration
     private float direction = 0f;           // Direction in radians
-    private float friction = 5f;            // Friction of tires on road
     private float maxAcceleration = 100f;   // Engine acceleration limit
+    private float reverseAcceleration = 50f; // Acceleration while reversing
+    private float turnRadius = .5f;         // Speed of turning
+    private float sidewaysDrag = .25f;
 
     // Properties
     private float drunkLevel = 0f;          // Score multiplier and self control inhibitor
@@ -27,6 +30,7 @@ public class PlayerController : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
+        velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y);
         HandleInput();
 	}
 
@@ -37,35 +41,43 @@ public class PlayerController : MonoBehaviour
 
     void UpdatePosition()
     {
-        this.rigidbody.AddForce(transform.forward * (acceleration - friction) * Time.deltaTime);
+        rigidbody.AddForce(transform.up * acceleration);
+        transform.Rotate((velocity.magnitude / 5f) * Vector3.forward * turnValue);
+
+        // Apply sideways drag
+         Vector3 dir = transform.InverseTransformDirection(rigidbody.velocity);
+         dir.x = dir.x * sidewaysDrag;
+         rigidbody.velocity = transform.TransformDirection(dir);
     }
 
     void HandleInput()
     {
-        if (Input.GetButton("Accelerate"))
-        {
-            Accelerate(50f);
-        }
-
-        if (Input.GetButton("Deccelerate"))
-        {
-            Accelerate(-10f);
-        }
+        Accelerate(Input.GetAxis("Acceleration"));
+        Turn(-Input.GetAxis("Turn"));
     }
 
     void Accelerate(float accel)
     {
-        acceleration += accel;
+        if (accel > 0)
+        {
+            acceleration = maxAcceleration*accel;
+        }
+        else if (accel < 0)
+        {
+            if (acceleration < 0)
+            {
+                acceleration = reverseAcceleration*accel;
+            }
+            else
+            {
+                acceleration = maxAcceleration*accel;
+            }
+        }
+    }
 
-        // Cap max forward/reverse acceleration
-        if (acceleration > maxAcceleration)
-        {
-            acceleration = maxAcceleration;
-        }
-        else if (acceleration < -maxAcceleration / 4)
-        {
-            acceleration = -maxAcceleration / 4;
-        }
+    void Turn(float accel)
+    {
+        turnValue = turnRadius*accel;
     }
 
     void HitPedestrian(PedestrianController ped)
