@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour {
 
@@ -10,6 +11,14 @@ public class MainMenuController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+	    if (Input.GetButtonDown("Submit"))
+	    {
+            GoToLevel();
+	    }
 	}
+
+    public void GoToLevel()
+    {
+        SceneManager.LoadScene("LevelScreen");
+    }
 }

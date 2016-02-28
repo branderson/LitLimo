@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     private float sidewaysDrag = .25f;
     private float friction = 2f;
     [SerializeField] private float drunkScale = 3f;
+    private Vector3 startPosition;
 
     // Properties
     private float drunkLevel = 100f;          // Score multiplier and self control inhibitor
@@ -30,6 +31,7 @@ public class PlayerController : MonoBehaviour
 	void Start ()
 	{
 	    this.rigidbody = GetComponent<Rigidbody2D>();
+	    startPosition = transform.position;
 	    reverseAcceleration = maxAcceleration/1.5f;
 	}
 	
@@ -70,13 +72,20 @@ public class PlayerController : MonoBehaviour
 
     void HandleInput()
     {
+        if (Input.GetButtonDown("Teleport"))
+        {
+            Teleport();
+        }
         Accelerate(Input.GetAxis("Acceleration"));
         Turn(-Input.GetAxis("Turn"));
+        if (Input.GetButtonDown("Escape"))
+        {
+            Application.Quit();
+        }
     }
 
     void UpdateIntoxication()
     {
-        Debug.Log("Drunk level: " + drunkLevel);
         if (drunkLevel > 0)
         {
             if (framesSinceSoberUp >= framesPerDrunkLevel)
@@ -125,10 +134,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void Teleport()
+    {
+        transform.position = startPosition;
+    }
+
     public void HitPedestrian(PedestrianController ped)
     {
         score += 1 + (int)drunkLevel/4;
-        Debug.Log("Score: " + score);
     }
 
     public void DestroyLiquorStore(LiquorStoreController liq)
@@ -143,5 +156,10 @@ public class PlayerController : MonoBehaviour
     public int GetScore()
     {
         return score;
+    }
+
+    public int GetDrunk()
+    {
+        return (int)drunkLevel;
     }
 }

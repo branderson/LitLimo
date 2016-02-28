@@ -88,8 +88,7 @@ public class PedestrianController : MonoBehaviour
                 splat.GetComponent<BloodSplatController>().RandomizePosition(transform.position);
                 splat.SetActive(true);
             }
-            
-            Destroy(this.gameObject);
+            gameObject.SetActive(false);           
         }
     }
 }
