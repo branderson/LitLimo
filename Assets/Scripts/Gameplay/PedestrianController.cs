@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.Remoting.Activation;
 using UnityEngine.Assertions.Comparers;
 
@@ -7,6 +8,7 @@ public class PedestrianController : MonoBehaviour
 {
     [SerializeField] public float SightRadius = 100;
     [SerializeField] public float CalmRadius = 150;
+    [SerializeField] private GameObject bloodSplat;
     private float runVelocity = 10f;
     private float walkVelocity = 10f;
     private float direction = 0f;
@@ -16,12 +18,14 @@ public class PedestrianController : MonoBehaviour
     private int framesSinceTurn = 0;
 
     private Rigidbody2D rigidbody;
+    private BloodSplatPooler bloodPooler;
 
 	// Use this for initialization
 	void Start ()
 	{
 	    rigidbody = GetComponent<Rigidbody2D>();
 	    player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+	    bloodPooler = GameObject.FindGameObjectWithTag("GameController").GetComponent<BloodSplatPooler>();
 	}
 	
 	// Update is called once per frame
@@ -76,6 +80,15 @@ public class PedestrianController : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             other.gameObject.GetComponent<PlayerController>().HitPedestrian(this);
+
+            // Make gore pile
+            List<GameObject> gore = bloodPooler.GetBloodSplats(10);
+            foreach (GameObject splat in gore)
+            {
+                splat.GetComponent<BloodSplatController>().RandomizePosition(transform.position);
+                splat.SetActive(true);
+            }
+            
             Destroy(this.gameObject);
         }
     }
