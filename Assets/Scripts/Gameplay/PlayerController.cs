@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float turnRadius = .5f;         // Speed of turning
     private float sidewaysDrag = .25f;
     private float friction = 2f;
-    [SerializeField] private float drunkScale = .1f;
+    [SerializeField] private float drunkScale = 3f;
 
     // Properties
     private float drunkLevel = 100f;          // Score multiplier and self control inhibitor
@@ -90,7 +90,8 @@ public class PlayerController : MonoBehaviour
 
     void UpdateLeaning()
     {
-        leaning = Mathf.PingPong(.5f*Time.time, .5f) - .25f;
+//        leaning = Mathf.PingPong(.5f*Time.time, .5f) - .25f;
+        leaning = Mathf.PingPong(.75f*Time.time, 2f)*2 - 2f;
     }
 
     void Accelerate(float accel)
@@ -137,5 +138,10 @@ public class PlayerController : MonoBehaviour
         {
             drunkLevel = 100;
         }
+    }
+
+    public int GetScore()
+    {
+        return score;
     }
 }
