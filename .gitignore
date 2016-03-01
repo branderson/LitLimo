@@ -3,6 +3,9 @@
 # =============== #
 Temp/
 Library/
+*.pdb
+*.exe
+*Data/
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
